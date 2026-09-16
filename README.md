@@ -58,7 +58,6 @@ Copy `email-writer-sb/.env.example` to `email-writer-sb/.env` and set your Gemin
 GEMINI_API_KEY=your_gemini_api_key
 GEMINI_MODEL=gemini-2.5-flash
 GEMINI_TEMPERATURE=0.4
-CORS_ALLOWED_ORIGINS=*
 ```
 
 Run from `email-writer-sb`:
