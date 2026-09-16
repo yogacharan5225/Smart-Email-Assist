@@ -1,94 +1,64 @@
 package com.email.writer.app;
 
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.reactive.function.client.WebClient;
-
-
-import java.util.List;
-import java.util.Map;
+import org.springframework.util.StringUtils;
 
 @Service
 public class EmailGeneratorService {
 
-    private final WebClient webclient;
+    private final ChatClient chatClient;
 
-
-    @Value("${gemini.api.url}")
-    private String geminiApiUrl;
-    @Value("${gemini.api.key}")
-    private String geminiApiKey;
-
-    public EmailGeneratorService(WebClient.Builder webclientBuilder) {
-        this.webclient = webclientBuilder.build();
+    public EmailGeneratorService(ChatClient.Builder chatClientBuilder) {
+        this.chatClient = chatClientBuilder.build();
     }
 
     public String generateEmailReply(EmailRequest emailRequest) {
-
-        //built prompt used
-        String prompt = builtPrompt(emailRequest);
-
-        //craft request
-        Map<String, Object> requestBody = Map.of(
-                "contents", List.of(
-                        Map.of(
-                                "parts", List.of(
-                                        Map.of("text", prompt)
-                                )
-                        )
-                )
-        );
-
-
-        try {
-            String response = webclient.post()
-                    .uri(geminiApiUrl + "?key=" + geminiApiKey)
-                    .header("Content-Type", "application/json")
-                    .bodyValue(requestBody)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-            return extractResponseContent(response);
-        } catch (org.springframework.web.reactive.function.client.WebClientResponseException e) {
-            return "API Error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString();
-        } catch (Exception e) {
-            return "Internal Error: " + e.getMessage();
+        if (emailRequest == null || !StringUtils.hasText(emailRequest.getEmailContent())) {
+            throw new IllegalArgumentException("Email content is required.");
         }
-    }
-// extract response and return
-    private String extractResponseContent(String response) {
-        try {
-            ObjectMapper mapper =new ObjectMapper();
-            JsonNode rootNode= mapper.readTree(response);
 
-            JsonNode candidates = rootNode.path("candidates");
-            if (!candidates.isArray() || candidates.size() == 0) {
-                return "No reply generated. Full response: " + response;
+        String prompt = buildPrompt(emailRequest);
+
+        try {
+            String response = chatClient.prompt()
+                    .system("You are an expert professional email assistant. Generate concise, natural and context-aware email replies.")
+                    .user(prompt)
+                    .call()
+                    .content();
+
+            if (!StringUtils.hasText(response)) {
+                throw new IllegalStateException("Gemini returned an empty response.");
             }
-            return  candidates
-                    .get(0)
-                    .path("content")
-                    .path("parts")
-                    .get(0)
-                    .path("text")
-                    .asText();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return "Error processing request"+ e.getMessage();
+
+            return response.trim();
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new IllegalStateException("Unable to generate the email reply. Check the Gemini API configuration and try again.", ex);
         }
     }
 
-    private String builtPrompt(EmailRequest emailRequest) {
-        StringBuilder prompt = new StringBuilder();
-        prompt.append("Generate a professional email reply for the following email content.please don't generate a subject line");
-        if (emailRequest.getTone() != null && !emailRequest.getTone().isEmpty()) {
-            prompt.append("use a ").append(emailRequest.getTone()).append("tone!!");
-        }
-        prompt.append("\noriginal email: \n").append(emailRequest.getEmailContent());
-        return prompt.toString();
+    private String buildPrompt(EmailRequest emailRequest) {
+        String tone = StringUtils.hasText(emailRequest.getTone())
+                ? emailRequest.getTone().trim()
+                : "professional";
+
+        return """
+                Generate a reply to the email below.
+
+                Requirements:
+                - Use a %s tone.
+                - Do not generate a subject line.
+                - Reply directly to the sender.
+                - Keep the response clear, natural and concise.
+                - Do not mention that you are an AI.
+                - Do not invent facts that are not present in the original email.
+
+                Original email:
+                ---
+                %s
+                ---
+                """.formatted(tone, emailRequest.getEmailContent().trim());
     }
 }
