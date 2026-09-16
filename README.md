@@ -52,7 +52,7 @@ Generated email reply
 
 ### 1. Backend
 
-Open `email-writer-sb` and create a `.env` file in the repository root or configure the environment variables in your IDE:
+Copy `email-writer-sb/.env.example` to `email-writer-sb/.env` and set your Gemini API key:
 
 ```env
 GEMINI_API_KEY=your_gemini_api_key
@@ -61,7 +61,7 @@ GEMINI_TEMPERATURE=0.4
 CORS_ALLOWED_ORIGINS=*
 ```
 
-Run:
+Run from `email-writer-sb`:
 
 ```bash
 cd email-writer-sb
@@ -84,7 +84,7 @@ npm install
 npm run dev
 ```
 
-Optional `.env`:
+Optional `email-writer-react/.env`:
 
 ```env
 VITE_API_URL=http://localhost:8080
