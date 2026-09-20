@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Email Assist</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="wrap">
+    <h1>Smart Email Assist</h1>
+
+    <section>
+      <label for="api-url">Backend URL</label>
+      <div class="row">
+        <input id="api-url" type="text" placeholder="http://localhost:8080" />
+        <button id="save-url">Save</button>
+      </div>
+      <p id="url-status" class="hint"></p>
+    </section>
+
+    <hr />
+
+    <section>
+      <p class="hint">
+        Open Gmail and click "Reply" to use the AI Reply button inside a
+        thread. You can also generate a reply manually here (useful for
+        testing without Gmail open):
+      </p>
+
+      <label for="email-content">Original email</label>
+      <textarea id="email-content" rows="5" placeholder="Paste the email you're replying to..."></textarea>
+
+      <label for="tone">Tone</label>
+      <select id="tone">
+        <option value="professional">Professional</option>
+        <option value="friendly">Friendly</option>
+        <option value="casual">Casual</option>
+        <option value="formal">Formal</option>
+        <option value="concise">Concise</option>
+      </select>
+
+      <button id="generate" class="primary">Generate Reply</button>
+
+      <div id="result-wrap" class="hidden">
+        <label for="result">Generated reply</label>
+        <textarea id="result" rows="6" readonly></textarea>
+        <button id="copy">Copy</button>
+      </div>
+
+      <p id="gen-status" class="hint"></p>
+    </section>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

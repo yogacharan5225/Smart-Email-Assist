@@ -1,0 +1,53 @@
+.sea-panel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  margin: 4px 0;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  background: #f8f9ff;
+  font-family: "Google Sans", Roboto, Arial, sans-serif;
+  font-size: 13px;
+}
+
+.sea-tone-select {
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid #c7c9d9;
+  background: #fff;
+  font-size: 13px;
+}
+
+.sea-generate-btn {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 16px;
+  background: #4263eb;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.sea-generate-btn:hover {
+  background: #3654c9;
+}
+
+.sea-generate-btn:disabled {
+  background: #9aa5e8;
+  cursor: default;
+}
+
+.sea-status {
+  font-size: 12px;
+  color: #5f6368;
+}
+
+.sea-status-error {
+  color: #c5221f;
+}
+
+.sea-status-success {
+  color: #188038;
+}
