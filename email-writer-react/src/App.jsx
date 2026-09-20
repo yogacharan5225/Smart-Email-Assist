@@ -15,7 +15,10 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+// In production the React build is served by Spring Boot, so a relative URL
+// keeps browser requests on the same HTTPS origin. Local Vite development can
+// still set VITE_API_URL=http://localhost:8080 in its .env file.
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 function App() {
   const [emailContent, setEmailContent] = useState('');
